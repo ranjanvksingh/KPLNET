@@ -1,4 +1,4 @@
-# KPLNET
+# KPLNET (Kinesis Producer Library .NET)
 KPL Wrapper and Native libraries written in .NET.
 
 Libraries:
