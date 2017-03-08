@@ -23,4 +23,4 @@ Notes:
 
 4. KPLNETTest and KinesisConsumerTest use envrironment variables for AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY.
 
-5. KinesisConsumerTest has stream name and starting sequence number had coded. You may use firstSequenceNumber logged by KPLNETTest for this.
+5. KinesisConsumerTest has stream name and starting sequence number hardcoded. You may use firstSequenceNumber logged by KPLNETTest for this.
