@@ -24,7 +24,7 @@ namespace KPLNET.Metrics
         {
             if (delims.Count != 0)
             {
-                canon.Remove(delims[delims.Count - 1].Key);
+				canon = canon.Remove(delims[delims.Count - 1].Key);
                 delims.RemoveAt(delims.Count - 1);
             }
             return this;

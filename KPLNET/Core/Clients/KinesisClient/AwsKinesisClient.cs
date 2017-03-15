@@ -42,7 +42,7 @@ namespace KPLNET.Core.Clients.KinesisClient
             CreateClients((int)maxConnections);
         }
 
-        private Amazon.RegionEndpoint MapRegion(AWSRegions region)
+        public static Amazon.RegionEndpoint MapRegion(AWSRegions region)
         {
             switch (region)
             {

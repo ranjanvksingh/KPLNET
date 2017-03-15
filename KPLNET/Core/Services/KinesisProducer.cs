@@ -48,14 +48,14 @@ namespace KPLNET.Kinesis.Core
             pipelines_ = new ConcurrentDictionary<string, Pipeline>();
             shutdown_ = false;
 
-            //create_metrics_manager();
+            create_metrics_manager();
 
             if (config.clientType == KPLNETInterface.ClientType.SocketClient)
                 create_http_client();
             else
                 create_kinesis_client();
 
-            //report_outstanding();
+            report_outstanding();
 
             message_drainer_ = new Thread(() => { drain_messages(); });
             message_drainer_.Start();
@@ -287,7 +287,8 @@ namespace KPLNET.Kinesis.Core
                 executor_,
                 socket_factory_,
                 metrics_creds_chain_,
-                region_,
+				config_,
+				region_,
                 config_.metricsNamespace,
                 level,
                 granularity,
@@ -347,15 +348,16 @@ namespace KPLNET.Kinesis.Core
             var stats = pm.Stats;
 
             if (req.Seconds != 0)
-            {
-                var s = req.Seconds;
+			{
+				int s = (int)req.Seconds;
                 stats.Count = accum.count(s);
                 stats.Sum = accum.sum(s);
                 stats.Min = accum.min(s);
                 stats.Max = accum.max(s);
                 stats.Mean = accum.mean(s);
-                pm.Seconds = s;
-            }
+
+				pm.Seconds = (ulong)s;
+			}
             else
             {
                 stats.Count = accum.count();
@@ -363,7 +365,7 @@ namespace KPLNET.Kinesis.Core
                 stats.Min = accum.min();
                 stats.Max = accum.max();
                 stats.Mean = accum.mean();
-                pm.Seconds = accum.elapsedSeconds();
+                pm.Seconds = (ulong)accum.elapsedSeconds();
             }
         }
 
