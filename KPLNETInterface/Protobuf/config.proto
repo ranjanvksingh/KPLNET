@@ -1,0 +1,38 @@
+syntax = "proto3";
+package aws.kinesis.protobuf;
+
+message AdditionalDimension {
+  string key         = 1;
+  string value       = 2;
+  string granularity = 3;
+}
+
+message Configuration {
+  repeated AdditionalDimension additional_metric_dims = 128;
+
+  bool aggregation_enabled = 1;
+  uint64 aggregation_max_count = 2;
+  uint64 aggregation_max_size = 3;
+  string cloudwatch_endpoint = 4;
+  uint64 cloudwatch_port = 5;
+  uint64 collection_max_count = 6;
+  uint64 collection_max_size = 7;
+  uint64 connect_timeout = 8;
+  bool enable_core_dumps = 9;
+  bool fail_if_throttled = 10;
+  string kinesis_endpoint = 11;
+  uint64 kinesis_port = 12;
+  string log_level = 13;
+  uint64 max_connections = 14;
+  string metrics_granularity = 15;
+  string metrics_level = 16;
+  string metrics_namespace = 17;
+  uint64 metrics_upload_delay = 18;
+  uint64 min_connections = 19;
+  uint64 rate_limit = 20;
+  uint64 record_max_buffered_time = 21;
+  uint64 record_ttl = 22;
+  string region = 23;
+  uint64 request_timeout = 24;
+  bool verify_certificate = 25;
+}
