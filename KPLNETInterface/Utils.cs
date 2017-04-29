@@ -129,7 +129,9 @@ namespace KPLNETInterface
 
         public static BigInteger GetDecimalHashKey(string partition_key)
         {
-            return new BigInteger(System.Security.Cryptography.MD5.Create().ComputeHash(System.Text.Encoding.Default.GetBytes(partition_key)));
+            
+            var ret = new BigInteger(System.Security.Cryptography.MD5.Create().ComputeHash(System.Text.Encoding.Default.GetBytes(partition_key)));
+			return ret * ret.Sign;
        }
 
         public static bool verifyMd5Hash(string input, string hash)
