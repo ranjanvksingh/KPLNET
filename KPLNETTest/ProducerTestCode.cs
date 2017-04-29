@@ -29,7 +29,7 @@ namespace KPLNETTest
                                 {
                                     runAsDaemon = false,
                                     nativeExecutable = Properties.Settings.Default.DeamonAppPath,
-                                    region = AWSRegions.USWest1,
+                                    region = AWSRegions.USWest2,
                                     aggregationMaxCount = 100,
                                     collectionMaxCount = 100,
                                     logLevel = log.LogLevel.ToString().ToLower()

@@ -149,8 +149,11 @@ namespace KPLNET.Core.Clients.KinesisClient
                 var reqEntry = new Amazon.Kinesis.Model.PutRecordsRequestEntry();
                 reqEntry.PartitionKey = item.partition_key();
                 reqEntry.ExplicitHashKey = item.explicit_hash_key();
-                reqEntry.Data = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(item.serialize()));
-                retVal.Add(reqEntry);
+				if (item.is_aggregated)
+					reqEntry.Data = new System.IO.MemoryStream(item.SerializedAggregatedRecord);
+				else
+					reqEntry.Data = new System.IO.MemoryStream(Encoding.UTF8.GetBytes(item.serialize()));
+				retVal.Add(reqEntry);
             }
             return retVal;
         }

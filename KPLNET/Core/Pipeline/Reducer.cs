@@ -42,8 +42,7 @@ namespace KPLNET.Kinesis.Core
             var size = container.Size();
             var estSize = container.Estimated_size();
 
-            StdErrorOut.Instance.StdOut(LogLevel.debug, string.Format("Reducer.Add -> if (container.Size() [ = {0}] >= count_limit [ = {1}] || container.Estimated_size() [ = {2} ] >= size_limit [ = {3} ]|| flush_predicate(input))", size, count_limit, estSize, size_limit));
-            if (size >= count_limit || estSize >= size_limit || flush_predicate(input))
+            if (size >= count_limit || (estSize + 30) >= size_limit || flush_predicate(input))
             {
                 var output = flush(mutex);
                 if (null != output && output.Size() > 0)
@@ -93,7 +92,7 @@ namespace KPLNET.Kinesis.Core
 
             records.Clear();
 
-            while (((ulong)flush_container.Size() > count_limit || flush_container.accurate_size() > size_limit) && flush_container.Size() > 1)
+            while (((ulong)flush_container.Size() > count_limit || flush_container.accurate_size() + 30 > size_limit) && flush_container.Size() > 1)
                 records.Add(flush_container.remove_last());
 
             lock (mutex)

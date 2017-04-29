@@ -134,7 +134,7 @@ namespace KPLNET.Kinesis.Core
             }
             catch (Exception e)
             {
-                update_callback(new AwsHttpResult(e.ToString(), null, DateTime.Now, DateTime.Now));
+                update_callback(new AwsKinesisResult(e.ToString(), null, DateTime.Now, DateTime.Now));
             }
         }
 

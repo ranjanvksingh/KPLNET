@@ -1,0 +1,7 @@
+*.xml
+*.dll
+*.pdb
+*.txt
+*.exe
+*.ps1
+*.nupkg

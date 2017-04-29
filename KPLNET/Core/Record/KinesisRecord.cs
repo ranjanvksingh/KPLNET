@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 
 using Aws.Kinesis.Protobuf;
+using Google.Protobuf;
 
 using KPLNET.Utils;
 using KPLNETInterface;
@@ -98,10 +99,14 @@ namespace KPLNET.Kinesis.Core
         private int estimated_size;
         private int cached_accurate_size;
         private bool cached_accurate_size_valid;
-        public static string kMagic = new string(new char[4] { '\xF3', '\x89', '\x9A', '\xC2' });
+        public byte[] kMagic = null;
 
         public KinesisRecord()
         {
+			unchecked
+			{
+				kMagic = new byte[] { (byte)-13, (byte)-119, (byte)-102, (byte)-62 };
+			}
             estimated_size = 0;
             cached_accurate_size = 0;
             cached_accurate_size_valid = false;
@@ -153,8 +158,20 @@ namespace KPLNET.Kinesis.Core
 
             string s = aggregated_record.SerializeAsString();
 
-            return new StringBuilder().Append(kMagic).Append(s).Append(KPLNETInterface.Utils.CreateMD5(s)).ToString();
+            return new StringBuilder().Append(new string(new char[4] { '\xF3', '\x89', '\x9A', '\xC2' })).Append(s).Append(KPLNETInterface.Utils.CreateMD5(s)).ToString();
         }
+
+		public byte[] SerializedAggregatedRecord 
+		{ 
+			get 
+			{ 
+				byte[] s = aggregated_record.ToByteArray();
+				byte[] md5 = KPLNETInterface.Utils.GetMD5(s);
+				return KPLNETInterface.Utils.Combine(KPLNETInterface.Utils.Combine(kMagic, s), md5);
+			}
+		}
+
+		public bool is_aggregated { get { return items.Count > 1; } }
 
         public string partition_key()
         {
@@ -200,8 +217,21 @@ namespace KPLNET.Kinesis.Core
             aggregated_record.Records.Add(new_record);
             new_record.Data = ur.Data();
             estimated_size += ur.Data().Length + 3;
-            
-            {
+
+			//PKIndex = 0 is causing issue for deaggregator so making sure PKIndex starts with 1
+			if (aggregated_record.PartitionKeyTable.Count == 0)
+			{
+				var pk = " ";
+				var add_result = partition_keys.Add(pk);
+				if (add_result.Key)
+				{
+					aggregated_record.PartitionKeyTable.Add(pk);
+					estimated_size += pk.Length + 3;
+				}
+				estimated_size += 2;
+			}
+
+			{
                 var pk = ur.Partition_key();
                 var add_result = partition_keys.Add(pk);
                 if (add_result.Key)
@@ -213,8 +243,21 @@ namespace KPLNET.Kinesis.Core
                 estimated_size += 2;
             }
 
-            var ehk = ur.explicit_hash_key();
-            if (ehk != null)
+			//EHKIndex = 0 is causing issue for deaggregator so making sure EHKIndex starts with 1
+			if (aggregated_record.ExplicitHashKeyTable.Count == 0)
+			{
+				var fehk = " ";
+				var add_result = explicit_hash_keys.Add(fehk.ToString());
+				if (add_result.Key)
+				{
+					aggregated_record.ExplicitHashKeyTable.Add(fehk.ToString());
+					estimated_size += fehk.ToString().Length + 3;
+				}
+				estimated_size += 2;
+			}
+
+			var ehk = ur.explicit_hash_key();
+            if (ehk != null && ehk != -1)
             {
                 var add_result = explicit_hash_keys.Add(ehk.ToString());
                 if (add_result.Key)
@@ -252,7 +295,7 @@ namespace KPLNET.Kinesis.Core
             }
 
             var ehk = ur.explicit_hash_key();
-            if (ehk != null)
+            if (ehk != null && ehk != -1)
             {
                 var ehk_rm_result = explicit_hash_keys.Remove_one(ehk.ToString());
                 if (ehk_rm_result.Key)

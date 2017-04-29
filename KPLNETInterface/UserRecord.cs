@@ -15,7 +15,7 @@ namespace KPLNETInterface
 {
     public class UserRecord : Amazon.Kinesis.Model.Record
     {
-        private static readonly int DIGEST_SIZE = 32;
+        private static readonly int DIGEST_SIZE = 16;
         private readonly long subSequenceNumber;
         private readonly string explicitHashKey;
         private readonly bool aggregated;
@@ -153,7 +153,11 @@ namespace KPLNETInterface
         {
             errorMesaage = "";
             List<UserRecord> result = new List<UserRecord>();
-            string kMagic = new string(new char[4] { '\xF3', '\x89', '\x9A', '\xC2' });
+			byte[] kMagic = null;
+			unchecked
+			{
+				kMagic = new byte[] { (byte)-13, (byte)-119, (byte)-102, (byte)-62 };
+			}
 
             foreach (var record in records)
             {
@@ -163,25 +167,26 @@ namespace KPLNETInterface
                 MemoryStream bb = record.Data;
                 byte[] bytes = new byte[bb.Length];
                 bb.Read(bytes, 0, bytes.Length);
-                string strMessage = Encoding.UTF8.GetString(bytes);
                 record.Data = new MemoryStream(bytes);//setting data in case of aggregated = false;
-                if (strMessage.StartsWith(kMagic))
-                    strMessage = strMessage.Substring(kMagic.Length);
-                else
-                    aggregated = false;
+				
+				if (bytes.Length < kMagic.Length)
+					aggregated = false;
+				else if (!Utils.AreArrayEqual(kMagic, bytes.Take(kMagic.Length).ToArray()))
+						aggregated = false;
 
-                if (strMessage.Length < DIGEST_SIZE)
+                if (bytes.Length < DIGEST_SIZE + kMagic.Length)
                     aggregated = false;
 
                 if (aggregated)
                 {
-                    string serializedData = strMessage.Substring(0, strMessage.Length - DIGEST_SIZE);
-                    string md5Hash = strMessage.Substring(strMessage.Length - DIGEST_SIZE);
-                    if (!Utils.verifyMd5Hash(serializedData, md5Hash))
+                    byte[] serializedData = bytes.Skip(kMagic.Length).Take(bytes.Length - DIGEST_SIZE - kMagic.Length).ToArray();
+					byte[] md5Hash = bytes.Skip(bytes.Length - DIGEST_SIZE).Take(DIGEST_SIZE).ToArray();
+					byte[] calcMD5 = Utils.GetMD5(serializedData);
+                    if (!Utils.AreArrayEqual(md5Hash, calcMD5))
                         aggregated = false;
                     else
                     {
-                        ByteString bytestr = ByteString.CopyFrom(serializedData, Encoding.Default);
+                        ByteString bytestr = ByteString.CopyFrom(serializedData);
                         try
                         {
                             Aws.Kinesis.Protobuf.AggregatedRecord ar = Aws.Kinesis.Protobuf.AggregatedRecord.Parser.ParseFrom(bytestr);

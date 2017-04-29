@@ -75,7 +75,41 @@ namespace KPLNETInterface
             return ss.ToString();
         }
 
-        public static string CreateMD5(string input)
+		public static byte[] GetMD5(byte[] inputBytes)
+		{
+			// Use input string to calculate MD5 hash
+			using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+				return md5.ComputeHash(inputBytes);
+		}
+
+		public static byte[] Combine(byte[] x, byte[] y)
+		{		 
+			var z = new byte[x.Length + y.Length];
+			x.CopyTo(z, 0);
+			y.CopyTo(z, x.Length);
+			return z;
+		}
+
+		public static bool AreArrayEqual(byte[] x, byte[] y)
+		{
+			if (x == null || y == null || x.Length != y.Length)
+				return false;
+
+			for (int i = 0; i < x.Length; i++)
+				if (x[i] != y[i])
+					return false;
+
+			return true;
+		}
+
+		public static byte[] GetMD5(string inputString)
+		{
+			// Use input string to calculate MD5 hash
+			using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())
+				return md5.ComputeHash(Encoding.UTF8.GetBytes(inputString));
+		}
+
+		public static string CreateMD5(string input)
         {
             // Use input string to calculate MD5 hash
             using (System.Security.Cryptography.MD5 md5 = System.Security.Cryptography.MD5.Create())

@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Text;
 using System.Numerics;
+using System.Linq;
 
 using Aws.Kinesis.Protobuf;
 
@@ -95,21 +96,25 @@ namespace KPLNETUnitTests
         public static void verify_format(List<UserRecord> original, KinesisRecord kr, ref AggregatedRecord container)
         {
             container = null;
-            string serialized = kr.serialize();
+            byte[] serialized = kr.SerializedAggregatedRecord;
 
             // verify magic number
-            string expected_magic = KinesisRecord.kMagic;
+            byte[] expected_magic = null;
+			unchecked
+			{
+				expected_magic = new byte[] { (byte)-13, (byte)-119, (byte)-102, (byte)-62 };
+			}
             int magic_len = expected_magic.Length;
-            string magic = serialized.Substring(0, magic_len);
-            Assert.AreEqual(expected_magic, magic);
+            byte[] magic = serialized.Take(magic_len).ToArray();
+            Assert.IsTrue(KPLNETInterface.Utils.AreArrayEqual(expected_magic, magic));
 
             // verify protobuf payload
-            string payload = serialized.Substring(expected_magic.Length, serialized.Length - 32 - magic_len);
-            container = AggregatedRecord.Parser.ParseFrom(Google.Protobuf.ByteString.CopyFrom(payload, Encoding.Default));
+            byte[] payload = serialized.Skip(expected_magic.Length).Take(serialized.Length - 16 - magic_len).ToArray();
+            container = AggregatedRecord.Parser.ParseFrom(Google.Protobuf.ByteString.CopyFrom(payload));
             Assert.IsNotNull(container);
 
             // verify md5 checksum
-            Assert.AreEqual(KPLNETInterface.Utils.CreateMD5(payload), serialized.Substring(serialized.Length - 32, 32));
+            Assert.IsTrue(KPLNETInterface.Utils.AreArrayEqual(KPLNETInterface.Utils.GetMD5(payload), serialized.Skip(serialized.Length - 16).Take(16).ToArray()));
 
             // verify the explicit hash key set on the Kinesis record
             List<string> acceptable_hash_keys = new List<string>();

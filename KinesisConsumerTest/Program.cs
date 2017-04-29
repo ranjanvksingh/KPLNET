@@ -54,8 +54,8 @@ namespace KinesisConsumerTest
                 if (akid == null || sKey == null)
                     return;
 
-                c = new AmazonKinesisClient(akid, sKey, Amazon.RegionEndpoint.USWest1);
-                c.GetShardIteratorAsync(new GetShardIteratorRequest() { ShardId = "shardId-000000000000", StreamName = "KPLNETTest", ShardIteratorType = ShardIteratorType.AFTER_SEQUENCE_NUMBER, StartingSequenceNumber = "49571145362647343743160250058988456238938362519545184258" }).
+                c = new AmazonKinesisClient(akid, sKey, Amazon.RegionEndpoint.USWest2);
+                c.GetShardIteratorAsync(new GetShardIteratorRequest() { ShardId = "shardId-000000000000", StreamName = "KPLNETTest", ShardIteratorType = ShardIteratorType.AFTER_SEQUENCE_NUMBER, StartingSequenceNumber = "49572131548342384703435782055007292317434442354572394498" }).
                     ContinueWith((b) =>
                     {
                         if (b.Result.HttpStatusCode == System.Net.HttpStatusCode.OK)
