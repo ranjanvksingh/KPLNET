@@ -130,7 +130,7 @@ namespace KPLNETInterface
         public static BigInteger GetDecimalHashKey(string partition_key)
         {
             
-            var ret = new BigInteger(System.Security.Cryptography.MD5.Create().ComputeHash(System.Text.Encoding.Default.GetBytes(partition_key)));
+            var ret = new BigInteger(System.Security.Cryptography.MD5.Create().ComputeHash(System.Text.Encoding.Default.GetBytes(partition_key)).Concat(new byte[] { 0 }).ToArray());
 			return ret * ret.Sign;
        }
 
