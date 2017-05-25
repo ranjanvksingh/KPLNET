@@ -479,7 +479,7 @@ namespace KPLNET.Kinesis.Core
             {
                 shard_id = ur.Attempts()[ur.Attempts().Count - 1].Shard_id();
             }
-            else if (ur.Predicted_shard() != 0)
+            else if (ur.Predicted_shard() != -1)
             {
                 shard_id = ShardMap.shard_id_to_str((ulong)ur.Predicted_shard());
             }

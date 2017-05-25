@@ -18,7 +18,7 @@ namespace KPLNET.Kinesis.Core
         private BigInteger hash_key;
         private ByteString data;
         private List<Attempt> attempts;
-        private long predicted_shard;
+        private long predicted_shard = -1;
         private bool has_explicit_hash_key;
         private bool finished;
 

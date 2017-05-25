@@ -5,3 +5,14 @@
 *.exe
 *.ps1
 *.nupkg
+/HttpMachine/obj/Debug
+/KinesisConsumerTest/bin/Debug
+/KinesisConsumerTest/obj/Debug
+/KPLNET/obj/Debug
+/KPLNETClientInterface/obj/Debug
+/KPLNETDaemon/bin/Debug
+/KPLNETDaemon/obj/Debug
+/KPLNETInterface/obj/Debug
+/KPLNETTest/obj/Debug
+/KPLNETUnitTests/obj/Debug
+/KPLNETTest/bin/Debug

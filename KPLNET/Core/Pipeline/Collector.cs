@@ -42,7 +42,7 @@ namespace KPLNET.Kinesis.Core
         private bool should_flush(KinesisRecord kr)
         {
             var shard_id = kr.Items()[0].Predicted_shard();
-            if (shard_id != 0)
+            if (shard_id != -1 && buffered_data_.Keys.Contains(shard_id))
             {
                 var d = (buffered_data_[shard_id] += kr.accurate_size());
                 if (d >= 256 * 1024)
@@ -59,7 +59,7 @@ namespace KPLNET.Kinesis.Core
             foreach (var kr in prr.Items())
             {
                 var shard_id = kr.Items()[0].Predicted_shard();
-                if (shard_id != 0)
+                if (shard_id != -1 && buffered_data_.Keys.Contains(shard_id))
                     buffered_data_[shard_id] -= kr.accurate_size();
             }
         }
