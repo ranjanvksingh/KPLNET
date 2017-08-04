@@ -240,7 +240,7 @@ namespace KPLNET.Kinesis.Core
 
     void on_flush(Flush flush_msg)
     {
-        if (string.IsNullOrEmpty(flush_msg.StreamName))
+        if (!string.IsNullOrEmpty(flush_msg.StreamName))
             GetPipeline(flush_msg.StreamName).flush();
         else
             foreach (var kv in pipelines_)
